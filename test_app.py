@@ -1,7 +1,7 @@
 import pytest
 from unittest import mock
 
-from app import get_crisp_status
+from app import Crisp
 
 
 @mock.patch("app.get")
@@ -73,7 +73,8 @@ def test_get_crisp_status(mock_get, mock_response, expected):
     #
     # Act
     #
-    res = get_crisp_status()
+    crisp = Crisp()
+    res = crisp.get_crisp_status()
 
     #
     # Assert
@@ -81,3 +82,5 @@ def test_get_crisp_status(mock_get, mock_response, expected):
     assert res is not None
     assert "crisp" in res
     assert res["crisp"] == expected
+    assert "temperature" in res
+    assert "humidity" in res

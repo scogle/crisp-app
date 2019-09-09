@@ -15,27 +15,32 @@ import os
 from requests import get
 
 
-def get_crisp_status():
-    """Tells us whether it's crisp out based on the temperature and humidity
+class Crisp:
+    def __init__(self):
+        self.base_url = os.getenv("DARK_SKY_BASE_URL")
+        self.token = os.getenv("DARK_SKY_API_TOKEN")
+        self.vacasa_lat_long = "45.5335,-122.6501"
 
-    https://api.darksky.net/forecast/[key]/[latitude],[longitude]
+    def get_crisp_status(self):
+        """Tells us whether it's crisp out based on the temperature and humidity
 
-    Returns:
+        https://api.darksky.net/forecast/[key]/[latitude],[longitude]
 
-    dict status - a dict with information on whether it's crisp or not
-    """
-    base_url = os.getenv("DARK_SKY_BASE_URL")
-    token = os.getenv("DARK_SKY_API_TOKEN")
-    vacasa_lat_long = "45.5335,-122.6501"
+        Returns:
 
-    res = get(f"{base_url}/forecast/{token}/{vacasa_lat_long}")
+        dict status - a dict with information on whether it's crisp or not
+        """
 
-    currently = res.json()['currently']
-    humidity = currently["humidity"]
-    temp = currently["apparentTemperature"]
+        res = get(f"{self.base_url}/forecast/{self.token}/{self.vacasa_lat_long}")
 
-    status = 40.0 <= temp <= 60.0 and humidity < 0.5
-    return {'crisp': status, 'temperature': temp, "humidity": humidity}
+        currently = res.json()["currently"]
+        humidity = currently["humidity"]
+        temp = currently["apparentTemperature"]
+
+        status = 40.0 <= temp <= 60.0 and humidity < 0.5
+        return {"crisp": status, "temperature": temp, "humidity": humidity}
+
 
 if __name__ == "__main__":
-    get_crisp_status()
+    crisp = Crisp()
+    crisp.get_crisp_status()
