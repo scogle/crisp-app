@@ -19,3 +19,4 @@ def test_get_crisp_status():
     #
     assert res is not None
     assert "status" in res
+    assert res["status"] in (True, False)
