@@ -12,7 +12,7 @@ Robert Calon
 
 import os
 
-import requests
+from requests import get
 
 
 def get_crisp_status():
@@ -28,11 +28,14 @@ def get_crisp_status():
     token = os.getenv("DARK_SKY_API_TOKEN")
     vacasa_lat_long = "45.5335,-122.6501"
 
-    res = requests.get(f"{base_url}/forecast/{token}/{vacasa_lat_long}")
-    import pdb
+    res = get(f"{base_url}/forecast/{token}/{vacasa_lat_long}")
 
-    pdb.set_trace()
+    currently = res.json()['currently']
+    humidity = currently["humidity"]
+    temp = currently["apparentTemperature"]
 
+    status = 40.0 <= temp <= 60.0 and humidity < 0.5
+    return {'crisp': status, 'temperature': temp, "humidity": humidity}
 
 if __name__ == "__main__":
     get_crisp_status()
