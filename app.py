@@ -11,9 +11,14 @@ Robert Calon
 """
 
 import os
+import json
 
 from requests import get
+from flask import Flask, escape, request
+from flask_restful import Api, Resource
 
+app = Flask(__name__)
+api = Api(app)
 
 class Crisp:
     def __init__(self):
@@ -27,8 +32,7 @@ class Crisp:
         https://api.darksky.net/forecast/[key]/[latitude],[longitude]
 
         Returns:
-
-        dict status - a dict with information on whether it's crisp or not
+            dict status - a dict with information on whether it's crisp or not
         """
 
         res = get(f"{self.base_url}/forecast/{self.token}/{self.vacasa_lat_long}")
@@ -40,7 +44,34 @@ class Crisp:
         status = 40.0 <= temp <= 60.0 and humidity < 0.5
         return {"crisp": status, "temperature": temp, "humidity": humidity}
 
+class CrispStatusResource(Resource):
+    def get(self):
+        try:
+            crisp = Crisp()
+            status = crisp.get_crisp_status()
+            response = {
+                "statusCode": 200,
+                "body": status,
+                "environment": "flask-restful",
+            }
+        except Exception as e:
+            response = {
+                "statusCode": 500,
+                "body": e
+            }
+        finally:
+            return response
+
+    def delete(self):
+        response = {
+            "statusCode": 200,
+            "body": "ok",
+            "environment": "flask-restful",
+        }
+        return response
+
+
+api.add_resource(CrispStatusResource, "/")
 
 if __name__ == "__main__":
-    crisp = Crisp()
-    crisp.get_crisp_status()
+    app.run(debug=True)
